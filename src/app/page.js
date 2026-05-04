@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import StepForm from "@/components/StepForm";
-// import ResultCard from "@/components/ResultCard";
+import ResultCard from "@/components/ResultCard";
 
 export default function Home() {
   const [result, setResult] = useState(null);
