@@ -2,7 +2,6 @@
 import { motion } from "framer-motion";
 import { useRef } from "react";
 
-// Animation variants for a "premium" reveal
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -50,7 +49,6 @@ export default function ResultCard({ brand, brandName, onReset }) {
     pdf.save(`${brandName}-identity.pdf`);
   };
 
-  // 2. SAFE FONT LOADING: Uses Optional Chaining and fallback values
   const headingFont = brand.fontPairing?.heading || "Inter";
   const bodyFont = brand.fontPairing?.body || "Inter";
 
@@ -91,9 +89,8 @@ export default function ResultCard({ brand, brandName, onReset }) {
           variants={container}
           initial="hidden"
           animate="show"
-          className="bg-neutral-900 border border-neutral-800 rounded-[2rem] p-12 md:p-16 space-y-20"
+          className="bg-neutral-900 border border-neutral-800 rounded-4xl p-12 md:p-16 space-y-20"
         >
-          {/* Logo Section */}
           <motion.div
             variants={item}
             className="flex flex-col items-center text-center space-y-6"
@@ -112,7 +109,6 @@ export default function ResultCard({ brand, brandName, onReset }) {
             </p>
           </motion.div>
 
-          {/* Color Palette */}
           <motion.div variants={item} className="space-y-6">
             <h3 className="text-xs uppercase tracking-[0.3em] text-neutral-500 text-center">
               Visual DNA
@@ -132,7 +128,6 @@ export default function ResultCard({ brand, brandName, onReset }) {
             </div>
           </motion.div>
 
-          {/* Typography & Personality */}
           <motion.div
             variants={item}
             className="grid md:grid-cols-2 gap-16 border-t border-neutral-800 pt-16"
