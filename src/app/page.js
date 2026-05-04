@@ -18,10 +18,18 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+
       const json = await res.json();
-      setResult(json);
+      if (res.ok) {
+        setResult(json);
+      } else {
+        throw new Error(
+          json.details || json.error || "Failed to generate identity",
+        );
+      }
     } catch (error) {
       console.error("Generation failed:", error);
+      alert(`Error: ${error.message}`);
     } finally {
       setLoading(false);
     }

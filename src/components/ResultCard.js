@@ -18,7 +18,6 @@ const item = {
 export default function ResultCard({ brand, brandName, onReset }) {
   const cardRef = useRef(null);
 
-  // 1. DATA GUARD: Prevents "undefined" errors if state is mid-update
   if (!brand || !brand.fontPairing || !brand.colorPalette) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,7 +64,7 @@ export default function ResultCard({ brand, brandName, onReset }) {
               Result
             </p>
             <h1 className="text-4xl font-light tracking-tighter">
-              {brandName}
+              {brand.brandName || "Brand Identity"}
             </h1>
           </div>
           <div className="flex gap-4">
@@ -99,7 +98,8 @@ export default function ResultCard({ brand, brandName, onReset }) {
               style={{ backgroundColor: brand.colorPalette[0] || "#333" }}
               className="w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold text-white"
             >
-              {brand.logoLetter || brandName.charAt(0)}
+              {brand.logoLetter ||
+                (brand.brandName ? brand.brandName.charAt(0) : "B")}
             </div>
             <p
               className="text-2xl italic font-light text-neutral-300"
@@ -125,6 +125,43 @@ export default function ResultCard({ brand, brandName, onReset }) {
                   </p>
                 </div>
               ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={item}
+            className="grid md:grid-cols-2 gap-16 border-t border-neutral-800 pt-16"
+          >
+            <div className="space-y-4">
+              <h3 className="text-xs uppercase tracking-widest text-neutral-500">
+                Logo Strategy
+              </h3>
+              <p className="text-neutral-300 leading-relaxed font-light">
+                {brand.logoConcept ||
+                  "A specialized visual mark designed for scalability and impact."}
+              </p>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-xs uppercase tracking-widest text-neutral-500">
+                Brand Monogram
+              </h3>
+              <div className="h-32 rounded-2xl flex items-center justify-center border border-neutral-800 bg-neutral-950 font-mono text-4xl text-neutral-500">
+                {brand.logoLetter}
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={item}
+            className="space-y-6 border-t border-neutral-800 pt-16"
+          >
+            <h3 className="text-xs uppercase tracking-[0.3em] text-neutral-500 text-center">
+              Visual Essence Prompt
+            </h3>
+            <div className="bg-neutral-950 rounded-3xl p-8 border border-neutral-800">
+              <p className="text-neutral-400 font-mono text-sm leading-relaxed">
+                {brand.sophisticatedPrompt}
+              </p>
             </div>
           </motion.div>
 

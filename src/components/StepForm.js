@@ -44,21 +44,19 @@ export default function StepForm({ onSubmit }) {
   ][step];
 
   const steps = [
-    // Step 0 — Brand Name
     <div key="0" className="space-y-6">
       <h2 className="text-3xl font-light tracking-tight">
-        What's your brand name?
+        Describe your brand vision
       </h2>
-      <input
+      <textarea
         className="w-full bg-transparent border-b border-neutral-700 py-4 text-2xl 
-                   outline-none focus:border-white transition-colors font-light"
-        placeholder="e.g. Stria"
+                   outline-none focus:border-white transition-colors font-light h-32 resize-none"
+        placeholder="e.g. A premium sustainable fragrance brand inspired by Nordic minimalism and raw coastal elements..."
         value={brandName}
         onChange={(e) => setBrandName(e.target.value)}
       />
     </div>,
 
-    // Step 1 — Industry
     <div key="1" className="space-y-6">
       <h2 className="text-3xl font-light tracking-tight">
         Select your industry
@@ -80,7 +78,6 @@ export default function StepForm({ onSubmit }) {
       </div>
     </div>,
 
-    // Step 2 — Vibes
     <div key="2" className="space-y-6">
       <h2 className="text-3xl font-light tracking-tight">Pick your vibes</h2>
       <div className="flex flex-wrap gap-3">
@@ -100,7 +97,6 @@ export default function StepForm({ onSubmit }) {
       </div>
     </div>,
 
-    // Step 3 — Audience
     <div key="3" className="space-y-6">
       <h2 className="text-3xl font-light tracking-tight">
         Who is your audience?

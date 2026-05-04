@@ -1,71 +1,86 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// Initialize with the API key
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const { brandName, industry, vibes, audience } = body;
 
-    if (!brandName) {
-      return new Response(JSON.stringify({ error: "Brand name is required" }), {
-        status: 400,
-      });
+    if (!brandName || !industry || !audience || !Array.isArray(vibes)) {
+      return NextResponse.json(
+        { error: "Missing or invalid required fields" },
+        { status: 400 },
+      );
     }
 
-    // STABLE ENDPOINT FIX
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-      apiVersion: "v1",
-    });
+    if (!process.env.OPENROUTER_API_KEY) {
+      throw new Error("OPENROUTER_API_KEY is not configured.");
+    }
 
-    const prompt = `You are a premium brand designer. 
-    Generate a brand identity for:
-    Name: ${brandName}
-    Industry: ${industry}
-    Vibes: ${vibes?.join(", ") || "Minimalist"}
-    Audience: ${audience}
+    const response = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "http://localhost:3000",
+          "X-Title": "Oura AI",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.0-flash-001",
+          messages: [
+            {
+              role: "user",
+              content: `You are a world-class brand strategist and designer. 
+            Generate a comprehensive brand identity for a project with the following vision: "${brandName}". 
+            Industry: ${industry}. Vibes: ${vibes.join(", ")}. Target Audience: ${audience}.
 
-    Respond ONLY with a raw JSON object. 
-    Ensure "fontPairing" uses actual Google Font names (e.g., "Playfair Display", "Inter").
-    {
-      "tagline": "...",
-      "colorPalette": ["#hex1", "#hex2", "#hex3", "#hex4"],
-      "fontPairing": { "heading": "Google Font Name", "body": "Google Font Name" },
-      "logoLetter": "${brandName.charAt(0).toUpperCase()}",
-      "brandPersonality": "..."
-    }`;
+            Respond ONLY with a valid JSON object:
+            {
+              "brandName": "A sophisticated suggested name for the brand",
+              "tagline": "...",
+              "colorPalette": ["#hex1", "#hex2", "#hex3", "#hex4"],
+              "fontPairing": { "heading": "Playfair Display", "body": "Inter" },
+              "logoLetter": "Extract the best single letter for a monogram",
+              "brandPersonality": "...",
+              "logoConcept": "Detailed description of a professional logo mark or icon...",
+              "sophisticatedPrompt": "A comprehensive, professional Midjourney prompt that captures the brand's visual essence, texture, lighting, and core aesthetic."
+            }`,
+            },
+          ],
+        }),
+      },
+    );
 
-    // GENERATION
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error?.message || `OpenRouter Error ${response.status}`,
+      );
+    }
 
-    // ROBUST JSON CLEANER
-    const startIdx = text.indexOf("{");
-    const endIdx = text.lastIndexOf("}");
+    const data = await response.json();
+    const resultText = data.choices?.[0]?.message?.content;
+
+    if (!resultText) {
+      throw new Error("No response content received from AI.");
+    }
+
+    const startIdx = resultText.indexOf("{");
+    const endIdx = resultText.lastIndexOf("}");
 
     if (startIdx === -1 || endIdx === -1) {
-      throw new Error("AI did not return valid JSON structure");
+      throw new Error("The AI failed to return a valid JSON object.");
     }
 
-    const jsonString = text.substring(startIdx, endIdx + 1);
-    const brandData = JSON.parse(jsonString);
+    const brandData = JSON.parse(resultText.substring(startIdx, endIdx + 1));
 
-    return new Response(JSON.stringify(brandData), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(brandData);
   } catch (err) {
-    console.error("CRITICAL API ERROR:", err.message);
-
-    return new Response(
-      JSON.stringify({ error: "Generation failed", details: err.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
+    console.error("API Route Error:", err);
+    return NextResponse.json(
+      { error: "Generation failed", details: err.message },
+      { status: 500 },
     );
   }
 }
