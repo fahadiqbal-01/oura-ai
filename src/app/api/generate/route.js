@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 1. Initialize with the API key
+// Initialize with the API key
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req) {
@@ -14,8 +14,7 @@ export async function POST(req) {
       });
     }
 
-    // 2. STABLE ENDPOINT FIX: Use apiVersion: "v1"
-    // This helps bypass some of the 'v1beta' fetch errors you were seeing
+    // STABLE ENDPOINT FIX
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
       apiVersion: "v1",
@@ -38,12 +37,12 @@ export async function POST(req) {
       "brandPersonality": "..."
     }`;
 
-    // 3. GENERATION
+    // GENERATION
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
 
-    // 4. ROBUST JSON CLEANER[cite: 1]
+    // ROBUST JSON CLEANER
     const startIdx = text.indexOf("{");
     const endIdx = text.lastIndexOf("}");
 
@@ -61,7 +60,6 @@ export async function POST(req) {
   } catch (err) {
     console.error("CRITICAL API ERROR:", err.message);
 
-    // This details return helps you see the exact error in your browser network tab[cite: 1]
     return new Response(
       JSON.stringify({ error: "Generation failed", details: err.message }),
       {
